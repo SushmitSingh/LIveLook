@@ -6,10 +6,10 @@ The Android MVVM Location Tracker App is a feature-rich application that leverag
 
 ## Screenshots
 
-![Location Notification](screenshots/notification.png)
+![Location Notification](WhatsApp%20Image%202024-01-24%20at%2015.52.26%20(1).jpeg)
 *Location Notification: The app provides real-time location updates in the notification bar.*
 
-![App Screen](screenshots/app_screen.png)
+![App Screen](WhatsApp%20Image%202024-01-24%20at%2015.52.26.jpeg)
 *App Screen: The app includes a live map displaying the current location.*
 
 ## Features
