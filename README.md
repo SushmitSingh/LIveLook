@@ -54,10 +54,6 @@ The Android MVVM Location Tracker App is a feature-rich application that leverag
 
 The app automatically starts tracking your location when launched. You can view live location updates on the map and receive notifications for each location update.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Acknowledgments
 
 - Special thanks to [Google](https://developers.google.com/maps/documentation/android-sdk/overview) for providing the Maps SDK.
