@@ -46,7 +46,6 @@ The Android MVVM Location Tracker App is a feature-rich application that leverag
 
 - [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
 - [LiveData](https://developer.android.com/topic/libraries/architecture/livedata)
-- [Room](https://developer.android.com/training/data-storage/room)
 - [Google Maps SDK](https://developers.google.com/maps/documentation/android-sdk/overview)
 - [Foreground Service](https://developer.android.com/guide/components/services#Foreground)
 
