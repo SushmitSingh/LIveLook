@@ -21,6 +21,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <!--Camera view-->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraView"
+            android:visibility="gone"
+            android:padding="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </RelativeLayout>
 
     <Button
@@ -52,11 +60,11 @@
             android:layout_height="wrap_content"
             android:text="@string/name_sushmit" />
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnStartCamera"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/d" />
+            android:text="Start Camera" />
 
     </LinearLayout>
 
