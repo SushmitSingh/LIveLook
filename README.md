@@ -12,6 +12,10 @@ The Android MVVM Location Tracker App is a feature-rich application that leverag
 <img src="WhatsApp%20Image%202024-01-24%20at%2015.52.26.jpeg" alt="App Screen" width="300" height="600">
 *App Screen: The app includes a live map displaying the current location.*
 
+<img src="WhatsApp%20Image%202024-04-10%20at%2015.39.44.jpeg" alt="App Screen" width="300" height="600">
+*App Screen: The app includes a live camera displaying the current location.*
+
+
 ## Features
 
 - **MVVM Architecture:** Utilizes the Model-View-ViewModel architecture pattern for a clean and organized codebase.
