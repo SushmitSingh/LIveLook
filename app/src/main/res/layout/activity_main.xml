@@ -4,25 +4,90 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/black"
     tools:context=".MainActivity">
 
-    <RelativeLayout
+    <LinearLayout
+            android:id="@+id/linearLayout2"
+            android:layout_width="0dp"
+            android:layout_height="60sp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/linearLayout"
+            app:layout_constraintTop_toTopOf="parent">
+            <ImageView
+                android:id="@+id/ivFlash"
+                android:layout_width="80dp"
+                android:padding="20dp"
+                android:src="@drawable/ic_flash_on"
+                android:layout_height="match_parent"/>
+
+        <ImageView
+                android:id="@+id/ivCameraToggel"
+                android:layout_width="80dp"
+                android:padding="20dp"
+                android:src="@drawable/ic_camera_toggela"
+                android:layout_height="match_parent"/>
+
+
+        <ImageView
+                android:id="@+id/ivRatioToggel"
+                android:layout_width="80dp"
+                android:padding="20dp"
+                android:src="@drawable/ic_camera_toggela"
+                android:layout_height="match_parent"/>
+
+
+
+
+        </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/csptureImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnStartLocationUpdates"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
         tools:context=".MainActivity">
 
         <com.google.android.gms.maps.MapView
             android:id="@+id/mapView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </RelativeLayout>
+        <!--Camera view-->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="H,4:3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <SeekBar
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/zoomSeekbar"
+        android:layout_marginEnd="50dp"
+        android:keepScreenOn="true"
+        android:rotation="-90"
+        android:scrollbarSize="20dp"
+        android:scrollIndicators="end"
+        android:thumbTint="#FFDD00"
+        app:layout_constraintBottom_toBottomOf="@+id/relativeLayout"
+        app:layout_constraintEnd_toEndOf="@+id/relativeLayout"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
     <Button
         android:id="@+id/btnStartLocationUpdates"
         android:layout_width="wrap_content"
@@ -30,7 +95,10 @@
         android:layout_centerInParent="true"
         android:layout_marginStart="1dp"
         android:padding="16dp"
-        android:text="@string/start_location_updates"
+        android:text="Start Location Updates"
+        android:textColor="@color/white"
+        android:visibility="gone"
+
         app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/linearLayout"
@@ -41,8 +109,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/relativeLayout"
-        app:layout_constraintEnd_toStartOf="@+id/btnStartLocationUpdates"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -50,15 +118,29 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/name_sushmit" />
+            android:text="Shivam" />
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnStartCamera"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/d" />
+            android:text="Start Camera"
+            android:textColor="@color/white" />
 
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/csptureImage"
+        android:layout_width="60sp"
+        android:layout_height="60sp"
+        android:layout_margin="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/camera_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
