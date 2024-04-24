@@ -3,4 +3,36 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="transparent_black_60">#AE000000</color>
+
+        <color name="colorPrimary">#7E57C2</color>
+        <color name="colorPrimaryDark">#512DA8</color>
+        <color name="colorAccent">#FF4081</color>
+        <color name="colorBackground">#FFFFFF</color>
+        <color name="textColorLight">#333333</color>
+        <color name="textColorDark">#FFFFFF</color>
+    <!-- Define your colors -->
+
+    <!-- Green -->
+    <color name="green">#00FF00</color>
+    <color name="light_green">#90EE90</color>
+    <color name="dark_green">#008000</color>
+
+    <!-- Red -->
+    <color name="red">#FF0000</color>
+    <color name="light_red">#FFA07A</color>
+    <color name="dark_red">#8B0000</color>
+
+    <!-- Blue -->
+    <color name="blue">#0000FF</color>
+    <color name="light_blue">#ADD8E6</color>
+    <color name="dark_blue">#00008B</color>
+
+    <!-- Yellow -->
+    <color name="yellow">#FFFF00</color>
+    <color name="light_yellow">#FFFFE0</color>
+    <color name="dark_yellow">#CCCC00</color>
+
+    <color name="colorPrimaryVariant">#512DA8</color> <!-- Darker shade of violet -->
+    <color name="colorSurface">#FFFFFF</color> <!-- Surface color (background) -->
+    <color name="colorOnSurface">#000000</color> <!-- Text color on surface (black) -->
 </resources>

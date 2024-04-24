@@ -1,9 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.LIveLook" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">#7E57C2</item> <!-- Violet shade -->
+        <item name="colorPrimaryVariant">#512DA8</item> <!-- Darker shade of violet -->
+        <item name="colorOnPrimary">#FFFFFF</item> <!-- Text color on primary (white) -->
+        <item name="colorSurface">#FFFFFF</item> <!-- Surface color (background) -->
+        <item name="colorOnSurface">#000000</item> <!-- Text color on surface (black) -->
+        <item name="android:statusBarColor" tools:targetApi="l">@color/colorPrimaryVariant</item> <!-- Status bar color -->
+        <item name="android:navigationBarColor">@color/colorPrimaryVariant</item> <!-- Navigation bar color -->
+        <item name="android:colorBackground">@color/colorSurface</item> <!-- Background color -->
+        <!-- Custom action bar color -->
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 
     <style name="Theme.LIveLook" parent="Base.Theme.LIveLook" />
+
+    <style name="MyActionBar" parent="Widget.Material3.ActionBar.Solid">
+        <item name="background">@color/colorPrimary</item>
+    </style>
 </resources>

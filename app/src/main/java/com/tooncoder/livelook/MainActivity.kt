@@ -7,8 +7,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Typeface
 import android.location.Location
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.SoundPool
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -27,6 +33,7 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraControl
@@ -40,6 +47,8 @@ import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
@@ -54,6 +63,7 @@ import java.io.OutputStream
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
+    private lateinit var adView: AdView
     private val viewModel: LocationViewModel by viewModels()
 
     private lateinit var mapView: MapView
@@ -71,24 +81,51 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private var isBackCameraSelected = true // Flag to track the currently selected camera
     private var isSquareRatio = false
     private var currentAspectRatio = AspectRatio.RATIO_16_9 // Default aspect ratio
+    private lateinit var soundPool: SoundPool;
+    private var soundId: Int = 0
 
+    //// permission code
+    private val REQUIRED_PERMISSIONS = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_NOTIFICATION_POLICY
+    )
+    private val PERMISSION_REQUEST_CODE = 1001
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        if (checkPermissions()) { // Initialize SoundPool
 
-        mapView = findViewById(R.id.mapView)
-        ivRatioToggel = findViewById(R.id.ivRatioToggel)
-        cameraView = findViewById(R.id.cameraView)
-        ivFlash = findViewById(R.id.ivFlash)
-        zoomSeekBar = findViewById(R.id.zoomSeekbar)
-        ivCameraToggel = findViewById(R.id.ivCameraToggel)
-        mapView.onCreate(savedInstanceState)
+            adView = findViewById(R.id.adView)
+            val adRequest = AdRequest.Builder().build()
+            adView.loadAd(adRequest)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val audioAttributes = AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
 
-        mapView.getMapAsync(this)
+                soundPool = SoundPool.Builder()
+                    .setMaxStreams(1)
+                    .setAudioAttributes(audioAttributes)
+                    .build()
+            } else {
+                soundPool = SoundPool(1, AudioManager.STREAM_MUSIC, 0)
+            }
+            soundId = soundPool.load(this, R.raw.cam_sound, 1)
+            mapView = findViewById(R.id.mapView)
+            ivRatioToggel = findViewById(R.id.ivRatioToggel)
+            cameraView = findViewById(R.id.cameraView)
+            ivFlash = findViewById(R.id.ivFlash)
+            zoomSeekBar = findViewById(R.id.zoomSeekbar)
+            ivCameraToggel = findViewById(R.id.ivCameraToggel)
+            mapView.onCreate(savedInstanceState)
+
+            mapView.getMapAsync(this)
 
 
 
-        //Switch Camera to MapView
+            //Switch Camera to MapView
 //        val btnStartCamera: Button = findViewById(R.id.btnStartCamera)
 //        btnStartCamera.setOnClickListener {
 //            //if map is visible, hide it and show camera view and vice versa
@@ -110,60 +147,118 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 //            viewModel.startLocationUpdates()
 //        }
 
-        viewModel.locationUpdates.observe(this, Observer { location ->
-            updateMap(location)
-        })
-        viewModel.startLocationUpdates()
+            viewModel.locationUpdates.observe(this, Observer { location ->
+                updateMap(location)
+            })
+            viewModel.startLocationUpdates()
 
-        if (mapView.visibility == View.VISIBLE) {
-            mapView.visibility = View.GONE
-            cameraView.visibility = View.VISIBLE
-            startCamera()
-//            btnStartCamera.text = "Switch to Map"
-        } else {
-            mapView.visibility = View.VISIBLE
-            cameraView.visibility = View.GONE
-//            btnStartCamera.text = "Switch to Camera"
-        }
-        ivFlash.setOnClickListener {
-            toggleFlash()
-
-        }
-        ivCameraToggel.setOnClickListener {
-            // Toggle between front and back cameras
-            isBackCameraSelected = !isBackCameraSelected
-            startCamera()
-        }
-        ivRatioToggel.setOnClickListener {
-            isSquareRatio = !isSquareRatio // Toggle the ratio flag
-
-            // Set camera ratio based on the flag
-            if (isSquareRatio) {
-               currentAspectRatio=AspectRatio.RATIO_16_9
-            startCamera()// Set 1:1 ratio
-            } else {
-                currentAspectRatio=AspectRatio.RATIO_4_3 // Set 1:1 ratio
+            if (mapView.visibility == View.VISIBLE) {
+                mapView.visibility = View.GONE
+                cameraView.visibility = View.VISIBLE
                 startCamera()
-                // Set 3:4 ratio
+//            btnStartCamera.text = "Switch to Map"
+            } else {
+                mapView.visibility = View.VISIBLE
+                cameraView.visibility = View.GONE
+//            btnStartCamera.text = "Switch to Camera"
             }
+            ivFlash.setOnClickListener {
+                toggleFlash()
+
+            }
+            ivCameraToggel.setOnClickListener {
+                // Toggle between front and back cameras
+                isBackCameraSelected = !isBackCameraSelected
+                startCamera()
+            }
+            ivRatioToggel.setOnClickListener {
+                isSquareRatio = !isSquareRatio // Toggle the ratio flag
+
+                // Set camera ratio based on the flag
+                if (isSquareRatio) {
+                    currentAspectRatio=AspectRatio.RATIO_16_9
+                    startCamera()// Set 1:1 ratio
+                } else {
+                    currentAspectRatio=AspectRatio.RATIO_4_3 // Set 1:1 ratio
+                    startCamera()
+                    // Set 3:4 ratio
+                }
+            }
+
+            zoomSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+                override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                    handleZoom(p1)
+                }
+
+                override fun onStartTrackingTouch(p0: SeekBar?) {
+
+                }
+
+                override fun onStopTrackingTouch(p0: SeekBar?) {
+
+                }
+            })
+            startCamera()
+
+        } else {
+            // Request permissions
+            ActivityCompat.requestPermissions(
+                this,
+                REQUIRED_PERMISSIONS,
+                PERMISSION_REQUEST_CODE
+            )
         }
 
-        zoomSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                handleZoom(p1)
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-               
-            }
-        })
     }
 
+    private fun checkPermissions(): Boolean {
+        for (permission in REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            var allPermissionsGranted = true
+            for (grantResult in grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false
+                    break
+                }
+            }
+            if (allPermissionsGranted) {
+                // All permissions granted, execute your code here
+                // For example: startApp()
+            } else {
+                // Not all permissions granted, show dialog
+                showPermissionRequiredDialog()
+            }
+        }
+    }
 
+    private fun showPermissionRequiredDialog() {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("Permissions Required")
+        dialog.setMessage("Permissions are required for this feature. Please grant the permissions in the app settings.")
+        dialog.setPositiveButton("Go to Settings") { _, _ ->
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri: Uri = Uri.fromParts("package", packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+        dialog.setNegativeButton("Cancel") { dialog, _ ->
+            dialog.dismiss()
+            finish() // Close the activity if permissions are not granted
+        }
+        dialog.show()
+    }
 
     private fun toggleFlash() {
         if (isTorchOn){
@@ -176,7 +271,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             control.enableTorch(isTorchOn)
         }
     }
-
+    fun Context.dpToPx(dp: Int): Int {
+        val density: Float = resources.displayMetrics.density
+        return (dp * density).toInt()
+    }
     private fun startCamera() {
 
         val width = cameraView.width
@@ -241,7 +339,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             var textView1= TextView(this).apply {
                 text = "${addressUtil.getAddress(location.latitude,location.longitude)}"
-                setTextColor(ContextCompat.getColor(context, android.R.color.holo_red_dark))
+                setTextColor(ContextCompat.getColor(context,R.color.yellow))
                 setBackgroundColor(ContextCompat.getColor(context, android.R.color.transparent))
                 layoutParams=layoutParamsBottom
                 textSize= 14.0f
@@ -255,11 +353,40 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
 
+
             }
+            val imageView = ImageView(this@MainActivity)
+            // Set the image resource or other properties of the ImageView as needed
+            imageView.setImageResource(R.drawable.icon_ic)
+
+            // Set the height and width of the ImageView
+            val params = LinearLayout.LayoutParams(
+                dpToPx(60), // 30dp converted to pixels
+                dpToPx(60)
+            )
+            imageView.layoutParams = params
+            val mainLinearLayout=LinearLayout(this).apply {
+                orientation=LinearLayout.HORIZONTAL
+
+
+            }
+            val imageLinearLayout=LinearLayout(this).apply {
+                orientation=LinearLayout.VERTICAL
+            }
+            val txtAppName = TextView(this@MainActivity).apply {
+                text = "Livelook"
+                setTextColor(Color.WHITE)
+                setTypeface(null, Typeface.BOLD)
+                gravity = Gravity.CENTER
+            }
+            imageLinearLayout.addView(imageView)
+            imageLinearLayout.addView(txtAppName)
 
             linearLayout.addView(textView)
             linearLayout.addView(textView1)
-            cardView.addView(linearLayout)
+            mainLinearLayout.addView(imageLinearLayout)
+            mainLinearLayout.addView(linearLayout)
+            cardView.addView(mainLinearLayout)
             cameraView.addView(cardView)
 
         })
@@ -403,10 +530,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             FileOutputStream(outputFile).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
                 Log.d("TAG", "Composite image saved successfully: ${outputFile.absolutePath}")
-//                val resultIntent = Intent()
-//                resultIntent.putExtra("key_result", "${outputFile.absolutePath}")
-//                setResult(RESULT_OK, resultIntent)
-//                finish()
+                soundPool.play(soundId, 1.0f, 1.0f, 1, 0, 1.0f)
+                val intent = Intent(this, DisplayImageActivity::class.java)
+                intent.putExtra("imageUri", outputFile.absolutePath)
+                startActivity(intent)
             }
         } catch (e: IOException) {
             Log.e("TAG", "Error saving composite image: ${e.message}", e)
@@ -499,16 +626,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onResume() {
         super.onResume()
+        adView.resume()
         mapView.onResume()
     }
 
     override fun onPause() {
         super.onPause()
+        adView.pause()
         mapView.onPause()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        adView.destroy()
         mapView.onDestroy()
     }
 
@@ -523,6 +653,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+
+
 
 
 }
