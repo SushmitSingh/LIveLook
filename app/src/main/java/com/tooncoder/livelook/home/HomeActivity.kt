@@ -1,76 +1,26 @@
 package com.tooncoder.livelook.home
 
-import androidx.appcompat.app.AppCompatActivity
-import android.annotation.SuppressLint
-import android.os.Build
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.MotionEvent
+import android.provider.MediaStore
+import android.view.LayoutInflater
 import android.view.View
-import android.view.WindowInsets
-import android.widget.LinearLayout
-import android.widget.TextView
-import com.tooncoder.livelook.databinding.ActivityHomeBinding
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.tooncoder.livelook.MainActivity
 import com.tooncoder.livelook.R
+import com.tooncoder.livelook.databinding.ActivityHomeBinding
 
-/**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
- */
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
-    private lateinit var fullscreenContent: TextView
-    private lateinit var fullscreenContentControls: LinearLayout
-    private val hideHandler = Handler(Looper.myLooper()!!)
+    private lateinit var adapter: ImageAdapter
 
-    @SuppressLint("InlinedApi")
-    private val hidePart2Runnable = Runnable {
-        // Delayed removal of status and navigation bar
-        if (Build.VERSION.SDK_INT >= 30) {
-            fullscreenContent.windowInsetsController?.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-        } else {
-            // Note that some of these constants are new as of API 16 (Jelly Bean)
-            // and API 19 (KitKat). It is safe to use them, as they are inlined
-            // at compile-time and do nothing on earlier devices.
-            fullscreenContent.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LOW_PROFILE or
-                        View.SYSTEM_UI_FLAG_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-        }
-    }
-    private val showPart2Runnable = Runnable {
-        // Delayed display of UI elements
-        supportActionBar?.show()
-        fullscreenContentControls.visibility = View.VISIBLE
-    }
-    private var isFullscreen: Boolean = false
-
-    private val hideRunnable = Runnable { hide() }
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    private val delayHideTouchListener = View.OnTouchListener { view, motionEvent ->
-        when (motionEvent.action) {
-            MotionEvent.ACTION_DOWN -> if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS)
-            }
-
-            MotionEvent.ACTION_UP -> view.performClick()
-            else -> {
-            }
-        }
-        false
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -79,88 +29,58 @@ class HomeActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        isFullscreen = true
+        // Initialize RecyclerView and set its layout manager
+        binding.rvHistort.layoutManager = GridLayoutManager(this, 3)
+        adapter = ImageAdapter(getAllSavedImages(this))
+        binding.rvHistort.adapter = adapter
 
-
-
-        fullscreenContentControls = binding.fullscreenContentControls
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        binding.dummyButton.setOnTouchListener(delayHideTouchListener)
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-
-        // Trigger the initial hide() shortly after the activity has been
-        // created, to briefly hint to the user that UI controls
-        // are available.
-        delayedHide(100)
-    }
-
-    private fun toggle() {
-        if (isFullscreen) {
-            hide()
-        } else {
-            show()
+        binding.dummyButton.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
 
-    private fun hide() {
-        // Hide UI first
-        supportActionBar?.hide()
-        fullscreenContentControls.visibility = View.GONE
-        isFullscreen = false
+    // Adapter for RecyclerView to display images
+    inner class ImageAdapter(private val images: List<String>) :
+        RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
-        // Schedule a runnable to remove the status and navigation bar after a delay
-        hideHandler.removeCallbacks(showPart2Runnable)
-        hideHandler.postDelayed(hidePart2Runnable, UI_ANIMATION_DELAY.toLong())
-    }
-
-    private fun show() {
-        // Show the system bar
-        if (Build.VERSION.SDK_INT >= 30) {
-            fullscreenContent.windowInsetsController?.show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-        } else {
-            fullscreenContent.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.item_image, parent, false)
+            return ImageViewHolder(view)
         }
-        isFullscreen = true
 
-        // Schedule a runnable to display UI elements after a delay
-        hideHandler.removeCallbacks(hidePart2Runnable)
-        hideHandler.postDelayed(showPart2Runnable, UI_ANIMATION_DELAY.toLong())
+        override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+            val imagePath = images[position]
+            holder.imageView.setImageURI(Uri.parse("file://$imagePath"))
+        }
+
+        override fun getItemCount(): Int {
+            return images.size
+        }
+
+        inner class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val imageView: ImageView = itemView.findViewById(R.id.imageView)
+        }
     }
 
-    /**
-     * Schedules a call to hide() in [delayMillis], canceling any
-     * previously scheduled calls.
-     */
-    private fun delayedHide(delayMillis: Int) {
-        hideHandler.removeCallbacks(hideRunnable)
-        hideHandler.postDelayed(hideRunnable, delayMillis.toLong())
-    }
-
-    companion object {
-        /**
-         * Whether or not the system UI should be auto-hidden after
-         * [AUTO_HIDE_DELAY_MILLIS] milliseconds.
-         */
-        private const val AUTO_HIDE = true
-
-        /**
-         * If [AUTO_HIDE] is set, the number of milliseconds to wait after
-         * user interaction before hiding the system UI.
-         */
-        private const val AUTO_HIDE_DELAY_MILLIS = 3000
-
-        /**
-         * Some older devices needs a small delay between UI widget updates
-         * and a change of the status and navigation bar.
-         */
-        private const val UI_ANIMATION_DELAY = 300
+    fun getAllSavedImages(context: Context): List<String> {
+        val images = mutableListOf<String>()
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val selection = "${MediaStore.Images.Media.RELATIVE_PATH} LIKE '%${context.packageName}%'"
+        context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            null,
+            null
+        )?.use { cursor ->
+            val dataIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA)
+            while (cursor.moveToNext()) {
+                val path = cursor.getString(dataIndex)
+                images.add(path)
+            }
+        }
+        return images
     }
 }

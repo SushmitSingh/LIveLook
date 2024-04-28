@@ -494,7 +494,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // Save the composite image
         if (resultBitmap != null) {
             saveCompositeImage(resultBitmap)
-            saveImageToCameraFolder(this@MainActivity,resultBitmap)
+            saveImageToAppFolder(this@MainActivity,resultBitmap)
         }
     }
     private fun drawViewToCanvas(view: CardView, canvas: Canvas) {
@@ -539,6 +539,49 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.e("TAG", "Error saving composite image: ${e.message}", e)
         }
     }
+
+    fun saveImageToAppFolder(context: Context, bitmap: Bitmap): Boolean {
+        // Check if external storage is available
+        if (Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
+            return false
+        }
+
+        // Get the directory for saving images
+        val directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+        val folder = File(directory, context.getString(R.string.app_name))
+        if (!folder.exists()) {
+            folder.mkdirs()
+        }
+
+        // Create a file name for the image
+        val fileName = "IMG_${System.currentTimeMillis()}.jpg"
+        val file = File(folder, fileName)
+
+        // Save the bitmap to the file
+        var outputStream: OutputStream? = null
+        try {
+            outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+
+            // Insert image into the MediaStore
+            val contentValues = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+                put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_DCIM}/${context.getString(R.string.app_name)}")
+            }
+            context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+
+            return true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
+        } finally {
+            outputStream?.close()
+        }
+    }
+
     fun saveImageToCameraFolder(context: Context, bitmap: Bitmap): Boolean {
         // Check if external storage is available
         if (Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
