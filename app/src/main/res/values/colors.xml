@@ -4,12 +4,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent_black_60">#AE000000</color>
 
-        <color name="colorPrimary">#7E57C2</color>
-        <color name="colorPrimaryDark">#512DA8</color>
-        <color name="colorAccent">#FF4081</color>
-        <color name="colorBackground">#FFFFFF</color>
-        <color name="textColorLight">#333333</color>
-        <color name="textColorDark">#FFFFFF</color>
+    <color name="colorPrimary">#7E57C2</color>
+    <color name="colorPrimaryDark">#512DA8</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorBackground">#FFFFFF</color>
+    <color name="textColorLight">#333333</color>
+    <color name="textColorDark">#FFFFFF</color>
     <!-- Define your colors -->
 
     <!-- Green -->
@@ -34,5 +34,10 @@
 
     <color name="colorPrimaryVariant">#512DA8</color> <!-- Darker shade of violet -->
     <color name="colorSurface">#FFFFFF</color> <!-- Surface color (background) -->
-    <color name="colorOnSurface">#000000</color> <!-- Text color on surface (black) -->
+    <color name="colorOnSurface">#000000</color>
+    <color name="light_blue_600">#FF039BE5</color>
+    <color name="light_blue_900">#FF01579B</color>
+    <color name="light_blue_A200">#FF40C4FF</color>
+    <color name="light_blue_A400">#FF00B0FF</color>
+    <color name="black_overlay">#66000000</color> <!-- Text color on surface (black) -->
 </resources>

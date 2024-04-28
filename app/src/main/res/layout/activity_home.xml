@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/fullscreenBackgroundColor"
+    android:theme="@style/ThemeOverlay.LIveLook.FullscreenContainer"
+    tools:context=".home.HomeActivity">
+
+    <!-- The primary full-screen view. This can be replaced with whatever view
+         is needed to present your content, e.g. VideoView, SurfaceView,
+         TextureView, etc. -->
+   <androidx.recyclerview.widget.RecyclerView
+       android:layout_width="match_parent"
+       tools:listitem="@layout/item_image"
+       android:layout_height="match_parent"
+       android:id="@+id/rvHistort"
+       >
+
+   </androidx.recyclerview.widget.RecyclerView>
+
+    <!-- This FrameLayout insets its children based on system windows using
+         android:fitsSystemWindows. -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
+
+        <LinearLayout
+            android:id="@+id/fullscreen_content_controls"
+            style="@style/Widget.Theme.LIveLook.ButtonBar.Fullscreen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:orientation="horizontal"
+            android:gravity="center"
+            tools:ignore="UselessParent">
+
+            <Button
+                android:id="@+id/dummy_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:textSize="20sp"
+                android:textColor="@color/white"
+                android:drawableEnd="@drawable/camera_ic"
+                android:text="@string/take_new_photo" />
+
+        </LinearLayout>
+    </FrameLayout>
+
+</FrameLayout>
